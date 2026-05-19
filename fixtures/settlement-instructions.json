@@ -1,0 +1,25 @@
+{
+  "baseSepoliaUsdc": {
+    "executionId": "exec_fixture_base_usdc",
+    "payerDid": "did:luffa:qa_owner",
+    "payeeDid": "did:luffa:qa_payee",
+    "asset": "USDC",
+    "amount": 1.25,
+    "rail": "evm-erc20",
+    "chainKey": "BASE_SEPOLIA",
+    "walletAddress": "0x7e5f4552091a69125d5dfcb7b8c2659029395bdf",
+    "toAddress": "0x0000000000000000000000000000000000000002",
+    "tokenAddress": "0x0000000000000000000000000000000000000003"
+  },
+  "solanaNative": {
+    "executionId": "exec_fixture_sol",
+    "payerDid": "did:luffa:qa_owner",
+    "payeeDid": "did:luffa:qa_payee",
+    "asset": "SOL",
+    "amount": 0.01,
+    "rail": "solana-native",
+    "chainKey": "SOLANA_DEVNET",
+    "walletAddress": "03a107bff3ce10be1d70dd18e74bc09967e4d6309ba50d5f1ddc8664125531b8",
+    "toAddress": "So11111111111111111111111111111111111111113"
+  }
+}

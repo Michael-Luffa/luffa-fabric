@@ -1,0 +1,21 @@
+{
+  "baseSepoliaUsdc": {
+    "ownerRef": "did:luffa:qa_owner",
+    "priority": 10,
+    "jsonRules": {
+      "allowedActions": [
+        "luffa.create_task",
+        "luffa.query_wallet",
+        "luffa.trigger_payment"
+      ],
+      "maxBudgetPerAction": 10,
+      "allowedAssets": [
+        "USDC",
+        "LUFFA_POINTS"
+      ],
+      "allowedChains": [
+        "BASE_SEPOLIA"
+      ]
+    }
+  }
+}

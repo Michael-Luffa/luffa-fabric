@@ -1,0 +1,19 @@
+services:
+  lael:
+    image: node:24-alpine
+    working_dir: /app
+    command: sh -lc "corepack enable && corepack pnpm install && corepack pnpm build && node dist/index.js"
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      LAEL_HOST: 0.0.0.0
+      LAEL_PORT: 3000
+      LAEL_DB_PATH: /data/lael.db
+    volumes:
+      - ./:/app
+      - lael-data:/data
+
+volumes:
+  lael-data:

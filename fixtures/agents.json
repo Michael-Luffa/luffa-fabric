@@ -1,0 +1,14 @@
+{
+  "ownerRef": "did:luffa:qa_owner",
+  "agent": {
+    "identityType": "API_KEY",
+    "externalId": "qa-agent-001",
+    "ownerRef": "did:luffa:qa_owner",
+    "capabilities": [
+      "luffa.create_task",
+      "luffa.query_wallet",
+      "luffa.trigger_payment"
+    ]
+  },
+  "payeeDid": "did:luffa:qa_payee"
+}

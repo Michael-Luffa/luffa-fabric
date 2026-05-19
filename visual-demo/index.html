@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Luffa Fabric MVP 1 Basic V2 Visual Demo</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="hero" aria-labelledby="page-title">
+        <div class="hero-copy">
+          <p class="eyebrow">MVP 1 Basic V2</p>
+          <h1 id="page-title">Luffa Fabric 可视化闭环 Demo</h1>
+          <p class="subtitle">
+            从代理身份注册到权限校验、任务执行、积分结算、Merkle 审计和声誉更新，一屏展示 Luffa Fabric 的最小可证明闭环。
+          </p>
+        </div>
+        <div class="hero-actions" aria-label="Demo controls">
+          <button id="playButton" type="button">播放流程</button>
+          <button id="recordButton" type="button" class="secondary">录制 WebM Demo</button>
+          <button id="resetButton" type="button" class="ghost">重置</button>
+        </div>
+      </section>
+
+      <section class="stage" aria-label="Luffa Fabric execution stage">
+        <aside class="scenario-panel">
+          <div class="panel-heading">
+            <span>Scenario</span>
+            <strong>Agent 创建社区任务</strong>
+          </div>
+          <dl class="scenario-list">
+            <div>
+              <dt>Agent</dt>
+              <dd>openclaw-agent-001</dd>
+            </div>
+            <div>
+              <dt>Action</dt>
+              <dd>luffa.create_task</dd>
+            </div>
+            <div>
+              <dt>Budget</dt>
+              <dd>2.5 LUFFA</dd>
+            </div>
+            <div>
+              <dt>Policy</dt>
+              <dd>allowedActions + maxBudgetPerAction: 5</dd>
+            </div>
+          </dl>
+          <div class="wallets" aria-label="Settlement balances">
+            <div>
+              <span>Payer</span>
+              <strong id="payerBalance">25.0</strong>
+            </div>
+            <div>
+              <span>Payee</span>
+              <strong id="payeeBalance">0.0</strong>
+            </div>
+          </div>
+        </aside>
+
+        <div class="flow-panel">
+          <div class="flow-rail" aria-hidden="true"></div>
+          <div id="token" class="token">AI</div>
+          <ol class="flow" aria-label="Luffa Fabric closed-loop pipeline">
+            <li class="flow-step" data-step="0">
+              <span class="step-code">I</span>
+              <div>
+                <h2>Identity</h2>
+                <p>解析代理 DID，确认 active 状态和能力列表。</p>
+              </div>
+            </li>
+            <li class="flow-step" data-step="1">
+              <span class="step-code">M</span>
+              <div>
+                <h2>Permission</h2>
+                <p>默认拒绝策略放行 create_task，预算小于 5。</p>
+              </div>
+            </li>
+            <li class="flow-step" data-step="2">
+              <span class="step-code">X</span>
+              <div>
+                <h2>Execution</h2>
+                <p>调用 luffa.create_task，生成任务执行记录。</p>
+              </div>
+            </li>
+            <li class="flow-step" data-step="3">
+              <span class="step-code">T</span>
+              <div>
+                <h2>Settlement</h2>
+                <p>原子转账 2.5 Luffa Points，完成价值结算。</p>
+              </div>
+            </li>
+            <li class="flow-step" data-step="4">
+              <span class="step-code">F</span>
+              <div>
+                <h2>Learning</h2>
+                <p>提交 5 分反馈，EMA 声誉从 0.50 更新到 0.55。</p>
+              </div>
+            </li>
+          </ol>
+        </div>
+
+        <aside class="audit-panel">
+          <div class="panel-heading">
+            <span>Audit</span>
+            <strong id="statusBadge">READY</strong>
+          </div>
+          <div class="metric-grid">
+            <div>
+              <span>Execution</span>
+              <strong id="executionStatus">Pending</strong>
+            </div>
+            <div>
+              <span>Settlement</span>
+              <strong id="settlementStatus">Pending</strong>
+            </div>
+            <div>
+              <span>Reputation</span>
+              <strong id="reputationScore">0.50</strong>
+            </div>
+          </div>
+          <div class="merkle-box">
+            <span>Merkle Root</span>
+            <code id="merkleRoot">waiting-for-execution</code>
+          </div>
+          <pre id="eventLog" class="event-log" aria-label="Demo event log"></pre>
+        </aside>
+      </section>
+
+      <section class="video-section" aria-label="Video demo canvas">
+        <div class="section-heading">
+          <h2>视频画面预览</h2>
+          <p>点击录制时，浏览器会把下面这块 Canvas 动画导出为 WebM。</p>
+        </div>
+        <canvas id="videoCanvas" width="1280" height="720"></canvas>
+      </section>
+    </main>
+
+    <script src="./app.js" type="module"></script>
+  </body>
+</html>
