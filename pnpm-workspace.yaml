@@ -1,0 +1,21 @@
+packages:
+  - .
+
+minimumReleaseAge: 1440
+minimumReleaseAgeExclude:
+  - postcss@8.5.15
+managePackageManagerVersions: false
+confirmModulesPurge: false
+verifyDepsBeforeRun: false
+
+onlyBuiltDependencies:
+  - better-sqlite3
+  - esbuild
+
+overrides:
+  rollup: 3.29.5
+  vite: 4.5.14
+
+allowBuilds:
+  better-sqlite3: true
+  esbuild: true
