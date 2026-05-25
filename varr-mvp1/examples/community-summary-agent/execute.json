@@ -1,0 +1,13 @@
+{
+  "kind": "ExecutionIntent",
+  "intent_id": "intent_001",
+  "agent_id": "did:luffa:agent:community-summary-001",
+  "workflow_id": "wf_community_summary_001",
+  "requested_by": "did:luffa:user:owner001",
+  "context_refs": ["ctx_community_123_public"],
+  "input": {
+    "task": "Summarize the latest public channel messages."
+  },
+  "requested_actions": ["read", "summarize", "draft_post", "generate_receipt"],
+  "created_at": "2026-05-25T00:00:00Z"
+}

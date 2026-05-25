@@ -1,0 +1,27 @@
+{
+  "kind": "CapabilityGrant",
+  "version": "1.0",
+  "capability_id": "cap_community_read_001",
+  "issuer": "did:luffa:user:owner001",
+  "subject": "did:luffa:agent:community-summary-001",
+  "resource": "luffa://community/123/channel/public",
+  "actions": ["read", "summarize", "draft_post", "generate_receipt"],
+  "constraints": {
+    "expires_at": "2026-06-01T00:00:00Z",
+    "max_calls_per_day": 100,
+    "max_spend_usd": 0,
+    "no_private_messages": true,
+    "requires_approval_for": ["publish", "external_share"]
+  },
+  "delegation": {
+    "can_delegate": false,
+    "max_delegation_depth": 0,
+    "allowed_delegatees": []
+  },
+  "revocation": {
+    "revocable": true,
+    "cascade_revoke": true
+  },
+  "status": "active",
+  "created_at": "2026-05-25T00:00:00Z"
+}

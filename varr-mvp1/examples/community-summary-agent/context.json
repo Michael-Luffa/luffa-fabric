@@ -1,0 +1,20 @@
+{
+  "kind": "ContextResource",
+  "version": "1.0",
+  "context_id": "ctx_community_123_public",
+  "namespace": "community:123",
+  "owner": "did:luffa:community:123",
+  "scope": "community_public",
+  "allowed_subjects": ["did:luffa:agent:community-summary-001"],
+  "retrieval_policy": "public_only",
+  "memory_type": "short_term",
+  "consent_required": false,
+  "cross_namespace_access": false,
+  "data_sources": [
+    {
+      "type": "mock_channel",
+      "ref": "community/123/channel/public"
+    }
+  ],
+  "status": "active"
+}

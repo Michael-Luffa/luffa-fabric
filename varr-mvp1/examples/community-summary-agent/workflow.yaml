@@ -1,0 +1,20 @@
+kind: WorkflowResource
+version: "1.0"
+workflow_id: wf_community_summary_001
+name: Community Public Channel Summary
+owner: did:luffa:user:owner001
+allowed_agents:
+  - did:luffa:agent:community-summary-001
+steps:
+  - id: resolve_context
+    action: read
+    resource: luffa://community/123/channel/public
+  - id: summarize
+    action: summarize
+    skill: builtin.summarize
+  - id: draft
+    action: draft_post
+  - id: receipt
+    action: generate_receipt
+risk_profile: low
+status: active
