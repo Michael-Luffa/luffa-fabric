@@ -1,0 +1,14 @@
+{
+  "kind": "FeedbackResource",
+  "version": "1.0",
+  "feedback_id": "fb_001",
+  "receipt_id": "receipt_001",
+  "source": "user",
+  "source_did": "did:luffa:user:owner001",
+  "label": "accepted",
+  "score": 5,
+  "comment": "Useful summary.",
+  "verified": true,
+  "weight": 1.0,
+  "created_at": "2026-05-25T00:00:00Z"
+}

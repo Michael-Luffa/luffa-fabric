@@ -1,0 +1,16 @@
+{
+  "name": "lael-varr-mvp1",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "lael": "./bin/lael"
+  },
+  "scripts": {
+    "api": "node --experimental-strip-types packages/api/src/server.ts",
+    "demo": "node --experimental-strip-types packages/cli/src/index.ts init && node --experimental-strip-types packages/cli/src/index.ts agent register ./examples/community-summary-agent/agent.json && node --experimental-strip-types packages/cli/src/index.ts capability grant ./examples/community-summary-agent/capability.json && node --experimental-strip-types packages/cli/src/index.ts context create ./examples/community-summary-agent/context.json && node --experimental-strip-types packages/cli/src/index.ts workflow create ./examples/community-summary-agent/workflow.yaml && node --experimental-strip-types packages/cli/src/index.ts execute ./examples/community-summary-agent/execute.json && node --experimental-strip-types packages/cli/src/index.ts receipt get receipt_001 && node --experimental-strip-types packages/cli/src/index.ts feedback submit ./examples/community-summary-agent/feedback.json && node --experimental-strip-types packages/cli/src/index.ts learning signal --receipt receipt_001",
+    "lael": "node --experimental-strip-types packages/cli/src/index.ts",
+    "test": "node --experimental-strip-types --test tests/**/*.test.ts"
+  },
+  "packageManager": "pnpm@11.1.3"
+}

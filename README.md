@@ -1,56 +1,113 @@
 # Luffa Fabric
 
-**Agent identity, delegated permission, wallet settlement, execution ledger, and reputation for the agentic economy.**
+**Agent identity, delegated permission, wallet settlement, trusted execution evidence, and reputation for the agentic economy.**
 
-Luffa Fabric is a production-grade Phase 1 MVP for building wallet-connected AI agent systems. It lets developers register agents, bind user wallets to DIDs, issue scoped capability tokens, enforce spending and chain limits, execute permitted actions, settle through chain-specific adapters, and write every outcome into an auditable execution ledger.
+Luffa Fabric is the capability fabric for wallet-connected and context-bounded AI agents. It gives developers the primitives to register agents, bind user wallets to DIDs, issue scoped capability grants, enforce spending and chain limits, run trusted workflows, record execution evidence, settle through chain adapters, and turn feedback into reputation or learning-ready signals.
 
-Completed by **Luffa AI Research Lab**.
+Built by **Luffa AI Research Lab**.
 
-> Formerly referred to as **LAEL**. The compatibility class name `LAEL` and `LAEL_*` environment variables are intentionally preserved for Phase 1 callers.
+> Formerly referred to as **LAEL**. Compatibility names such as `LAEL` and `LAEL_*` are intentionally preserved for earlier callers.
 
-## Why It Exists
+## The Thesis
 
-AI agents are starting to act on behalf of users, teams, applications, and protocols. The hard part is not only calling tools. The hard part is proving:
+AI agents are beginning to act for users, teams, applications, communities, and protocols. The hard part is not only connecting them to tools. The hard part is proving:
 
 - who the agent is
 - who authorized it
 - what it is allowed to do
-- which wallet signed or delegated authority
-- whether the action respected spending limits
-- where settlement happened
-- what transaction hash proves it
-- how the result changes reputation
+- what context it may read
+- which wallet or rail is allowed to settle
+- whether risk and approval rules were enforced
+- what evidence proves the outcome
+- how feedback changes reputation and future learning
 
-Luffa Fabric is the connector layer for that loop.
+Luffa Fabric is the connector layer for that trust loop.
 
 ```text
 Identity
   -> Wallet Binding
   -> Delegated Permission
-  -> Execution
+  -> Context Boundary
+  -> Trusted Execution
   -> Settlement Adapter
-  -> Blockchain / Points Rail
-  -> Ledger
+  -> Ledger / Receipt
   -> Feedback
-  -> Reputation
+  -> Reputation / Learning Signal
 ```
 
 It is not a marketplace, bridge, MPC wallet, account-abstraction stack, zkML runtime, TEE system, DAO, or full decentralized protocol. Those surfaces are deliberately reserved for future phases.
 
+## Architecture At A Glance
+
+```mermaid
+flowchart TD
+  User["User / Community / App"]
+  DID["DID + Agent Identity"]
+  Capability["Delegated Capability / Policy"]
+  Context["Context Boundary"]
+  Runtime["Trusted Runtime"]
+  Adapter["Execution / Settlement Adapter"]
+  Ledger["Ledger + ExecutionReceipt"]
+  Feedback["Feedback"]
+  Reputation["Reputation / LearningSignal"]
+
+  User --> DID
+  DID --> Capability
+  Capability --> Context
+  Context --> Runtime
+  Runtime --> Adapter
+  Runtime --> Ledger
+  Adapter --> Ledger
+  Ledger --> Feedback
+  Feedback --> Reputation
+```
+
 ## What Is Included
 
-| Layer | MVP 2 capability |
+| Layer | Capability |
 | --- | --- |
 | Identity | DID-style owner references, agent registration, service keys, delegated capability tokens |
 | Wallets | Wallet connect nonce flow, signature verification, DID-to-wallet binding |
 | Permission | Default-deny policy engine with action, risk, budget, asset, chain, expiry, and revocation checks |
-| Execution | Agent invocation pipeline with idempotency and denied-action recording |
+| Context | MVP1 VARR context resources, namespace isolation, public-scope enforcement |
+| Execution | Agent invocation pipeline plus trusted VARR runtime sidecar |
 | Settlement | Luffa Points, EVM native, EVM ERC20, Solana native, Solana SPL, Endless adapter abstraction |
-| Ledger | Execution and settlement records with tx hash, wallet, chain, gas, block, Merkle leaf, and Merkle root |
-| Reputation | Feedback submission and exponential moving average reputation scoring |
-| API | Phase 1 v1 APIs preserved, MVP 2 wallet and settlement APIs added |
-| Demo | Next.js wallet demo scaffold and visual demo flow |
+| Evidence | Execution ledger, settlement records, Merkle fields, and VARR `ExecutionReceipt` |
+| Feedback | Feedback submission, reputation scoring, and learning-ready signal emission |
+| API | Phase 1 v1 APIs, MVP 2 wallet and settlement APIs, VARR sidecar API |
+| Demo | Wallet demo scaffold plus community summary trusted-agent demo |
 | QA | Unit, integration, E2E, wallet, settlement, ledger, and security tests |
+
+## VARR Trusted Agent Runtime
+
+The newest addition is **VARR MVP1: Trusted Agent Execution Loop**, an overlay runtime under `varr-mvp1/`.
+
+VARR proves the smallest structurally correct trusted-agent path:
+
+```text
+One Agent
+-> One DID
+-> One Capability
+-> One Context Boundary
+-> One Workflow
+-> One Controlled Execution
+-> One ExecutionReceipt
+-> One Feedback Signal
+-> Zero Private-Key Exposure
+```
+
+The runtime is intentionally small and strict:
+
+- `RuntimeOrchestrator` is the only execution path.
+- Adapters cannot execute without runtime authorization.
+- Every path creates an `ExecutionReceipt`, including denied and pending approval paths.
+- Critical actions are hard-denied before adapter execution.
+- High-risk actions return `pending_approval`.
+- Feedback must reference a valid receipt.
+- Learning signals are emitted only from receipt plus feedback.
+- Seed phrases, private keys, mnemonics, and raw wallet credentials are never accepted or stored.
+
+VARR is not a replacement for Luffa Core. It is a sidecar runtime that can consume Luffa identity, community, wallet intent, and event abstractions without invasive core changes.
 
 ## Supported Wallets
 
@@ -61,7 +118,7 @@ It is not a marketplace, bridge, MPC wallet, account-abstraction stack, zkML run
 - Phantom
 - Luffa Wallet
 
-Luffa Fabric never stores user mnemonics, seed phrases, master private keys, or raw wallet private keys. Wallet ownership is external and is proven by signing a scoped wallet-binding message.
+Luffa Fabric never stores user mnemonics, seed phrases, master private keys, or raw wallet private keys. Wallet ownership is external and is proven by signing scoped wallet-binding messages.
 
 ## Supported Chains
 
@@ -108,46 +165,44 @@ Agents can only execute scoped actions. A capability token may include:
 - `allowedAssets`
 - `allowedChains`
 - `expiresAt`
-- revoked / active state
+- revoked or active state
 
-Every invocation follows the same path:
+Every invocation follows the same trust path:
 
 1. Resolve owner and agent identity.
 2. Verify the agent is active and declares the requested capability.
 3. Validate capability token scope, expiry, revocation, amount, asset, and chain.
-4. Evaluate policy rules.
-5. Record the permission decision.
-6. Execute only after an explicit `ALLOW`.
-7. Record the execution result, including denied actions.
-8. If settlement occurs, store the settlement ID and tx hash.
+4. Check context boundaries when context access is requested.
+5. Evaluate policy and risk.
+6. Route high-risk actions to approval.
+7. Deny critical actions before adapter execution.
+8. Execute only after explicit authorization.
+9. Record the execution outcome, including denied actions.
+10. If settlement occurs, store the settlement ID and transaction hash.
 
 Permission is default-deny. Deny rules override allow rules.
 
-## Execution Ledger
+## Evidence Model
 
-Every invocation writes an execution record with reserved forward-compatible fields:
+Luffa Fabric records execution and settlement evidence. VARR adds an explicit receipt primitive for trusted runtime paths.
 
-- `executionId`
-- `agentId`
-- `action`
-- `params`
-- `status`
-- `permissionDecisionId`
-- `settlementId`
-- `chainType`
-- `chainId`
-- `txHash`
-- `walletAddress`
-- `gasUsed`
-- `blockNumber`
-- `merkleLeafHash`
-- `merkleRoot`
-- `rawInput`
-- `feedback`
-- `zkProof`
-- `teeAttestation`
+`ExecutionReceipt` captures:
 
-This creates an auditable MVP ledger while avoiding claims of full decentralized protocol security.
+- intent ID
+- agent ID
+- workflow ID
+- capability IDs
+- context references
+- context hash
+- policy decisions
+- risk level
+- approval requirement
+- status
+- output hash or pointer
+- cost metadata
+- creation timestamp
+
+Receipts are append-only evidence records, not casual logs.
 
 ## REST API
 
@@ -173,7 +228,22 @@ MVP 2 APIs:
 | `POST` | `/v2/settlement/transfer` | Invoke settlement adapter |
 | `GET` | `/v2/settlement/tx/:txHash` | Verify transaction status |
 
+VARR sidecar APIs live under `varr-mvp1/packages/api`:
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| `POST` | `/v1/agents` | Register an `AgentResource` |
+| `POST` | `/v1/capabilities` | Create a `CapabilityGrant` |
+| `POST` | `/v1/contexts` | Create a `ContextResource` |
+| `POST` | `/v1/workflows` | Create a `WorkflowResource` |
+| `POST` | `/v1/execution/run` | Run the trusted execution loop |
+| `GET` | `/v1/execution/receipts/{receipt_id}` | Read an execution receipt |
+| `POST` | `/v1/feedback` | Attach feedback to a receipt |
+| `GET` | `/v1/learning/signals?receipt_id={receipt_id}` | Read learning-ready signals |
+
 ## Quick Start
+
+Core Luffa Fabric:
 
 ```bash
 corepack enable
@@ -185,40 +255,28 @@ pnpm build
 pnpm demo
 ```
 
-Create local configuration:
+VARR sidecar:
 
 ```bash
-cp .env.example .env
-```
-
-Use mock settlement mode for local and CI runs:
-
-```bash
-LAEL_SETTLEMENT_MODE=mock pnpm test
-```
-
-Run the API after building:
-
-```bash
-pnpm build
-pnpm start
-```
-
-## Demo
-
-Run the scripted demo:
-
-```bash
+cd varr-mvp1
+pnpm test
 pnpm demo
 ```
 
-Run the visual demo:
+Expected VARR demo result:
 
-```bash
-pnpm demo:visual
+```text
+Execution status: success
+Receipt generated: receipt_001
+Feedback accepted: yes
+Learning signal emitted: yes
+Private key exposure: no
+Context boundary respected: yes
 ```
 
-The intended MVP 2 demo flow:
+## Demo Flows
+
+Core MVP 2 flow:
 
 1. Connect Coinbase Wallet or another supported wallet.
 2. Sign a DID wallet-binding message.
@@ -232,19 +290,20 @@ The intended MVP 2 demo flow:
 10. Submit feedback.
 11. Update reputation.
 
-## Frontend
+VARR MVP1 flow:
 
-The Next.js demo lives in [src/frontend](./src/frontend).
+1. Register the Community Summary Agent.
+2. Grant public community read and summarize capabilities.
+3. Create a public community context.
+4. Create a linear workflow.
+5. Execute through `RuntimeOrchestrator`.
+6. Generate an `ExecutionReceipt`.
+7. Submit feedback.
+8. Emit a `LearningSignal`.
 
-```bash
-cd src/frontend
-pnpm install
-pnpm dev
-```
+## Test Coverage
 
-The demo includes wallet connection, chain display, chain switching, address display, signature flow, agent registration, policy creation, invocation, settlement tx hash display, execution record display, error states, and reputation display.
-
-## Test Suite
+Core Luffa Fabric test commands:
 
 ```bash
 pnpm test:unit
@@ -254,33 +313,25 @@ pnpm test:wallet
 pnpm test:settlement
 ```
 
-The suite covers:
+VARR sidecar coverage includes:
 
-- wallet nonce creation
-- EVM signature verification
-- Solana signature verification
-- nonce replay and expiry rejection
-- DID wallet binding
-- duplicate binding rules
-- chain registry validation
-- settlement adapter conformance
-- Luffa Points transfer and rollback
-- EVM native and ERC20 mock settlement
-- Solana SOL and SPL mock settlement
-- permission denial
-- capability expiry and revocation
-- idempotent execution
-- tx hash persistence
-- execution ledger Merkle fields
-- feedback and reputation updates
-- security checks for mnemonic / seed phrase / private key storage
+- resource validators
+- capability enforcement
+- expired and revoked capability denial
+- context namespace isolation
+- private context denial in MVP1
+- low-risk successful execution
+- high-risk `pending_approval`
+- critical action denial
+- receipt creation for every runtime path
+- feedback rejection without a valid receipt
+- adapter bypass protection
+- seed phrase and private key material rejection
 
-Latest local QA before publication:
+Latest VARR local verification:
 
-- `pnpm test`: 74 tests passed
-- `pnpm typecheck`: passed
-- `pnpm build`: passed
-- `pnpm demo`: passed
+- `pnpm test`: 19 tests passed
+- `pnpm demo`: passed end to end
 
 ## Repository Layout
 
@@ -298,6 +349,16 @@ src/
   permission/   Default-deny policy evaluation
   settlement/   Luffa Points ledger and settlement adapters
   wallet/       Wallet nonce, signature verification, and DID binding
+
+varr-mvp1/
+  packages/core     Trusted runtime, resources, storage, adapters, security
+  packages/api      Minimal REST API
+  packages/cli      Developer CLI
+  packages/sdk-js   Lightweight JavaScript client
+  examples/         Community summary agent demo
+  docs/             Architecture, API, security, threat model
+  tests/            Unit, integration, and security tests
+
 tests/
   e2e/          End-to-end MVP 2 flow
 fixtures/       Deterministic wallet, agent, policy, and settlement fixtures
@@ -306,7 +367,7 @@ visual-demo/    Vite visual demo
 
 ## Configuration
 
-See [.env.example](./.env.example) for all supported variables.
+See [.env.example](./.env.example) for core Luffa Fabric variables.
 
 Important flags:
 
@@ -332,20 +393,23 @@ USDT_BASE_SEPOLIA=
 
 ## Security Boundaries
 
-Luffa Fabric MVP 2 enforces:
+Luffa Fabric enforces:
 
 - no mnemonic storage
 - no seed phrase storage
 - no raw user private key storage
 - wallet binding through signature proof
+- capability-scoped execution
+- context-bound runtime access
 - settlement only after permission approval
 - spending caps
 - chain and asset constraints
 - capability expiry
 - capability revocation
 - idempotency keys
-- tx hash recording
-- denied-action ledger records
+- transaction hash recording
+- denied-action evidence records
+- approval gating for high-risk actions
 
 Security non-goals:
 
@@ -356,12 +420,16 @@ Security non-goals:
 - no TEE
 - no DAO governance
 - no production bridge security claims
+- no production sandbox cluster in VARR MVP1
 
 ## Documentation
 
 - [QUICKSTART.md](./QUICKSTART.md)
 - [WALLET_TEST_GUIDE.md](./WALLET_TEST_GUIDE.md)
 - [CHAIN_CONFIGURATION.md](./CHAIN_CONFIGURATION.md)
+- [VARR MVP1 Architecture](./varr-mvp1/docs/architecture.md)
+- [VARR MVP1 Security](./varr-mvp1/docs/security.md)
+- [VARR MVP1 Threat Model](./varr-mvp1/docs/threat-model.md)
 
 ## License
 
