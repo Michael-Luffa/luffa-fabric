@@ -431,6 +431,98 @@ Security non-goals:
 - [VARR MVP1 Security](./varr-mvp1/docs/security.md)
 - [VARR MVP1 Threat Model](./varr-mvp1/docs/threat-model.md)
 
+## Phase 2 Core API Deployment
+
+Phase 2 uses this repository as the **Luffa Fabric Core API**. The Vercel interactive demo remains a static frontend; this API should be deployed separately, for example on Railway.
+
+Required public demo shape:
+
+```text
+Vercel demo
+-> Railway Luffa Core API
+-> wallet binding
+-> agent registration
+-> policy creation
+-> invoke
+-> mock settlement / Luffa Points
+-> feedback
+-> reputation
+```
+
+### Railway Settings
+
+Railway can deploy this repo from GitHub using the included `railway.json`.
+
+```text
+Build Command: pnpm install --frozen-lockfile && pnpm build
+Start Command: pnpm start
+Healthcheck Path: /health
+```
+
+Recommended Railway environment variables:
+
+```text
+NODE_ENV=production
+LAEL_HOST=0.0.0.0
+LAEL_DB_PATH=./data/lael.db
+LAEL_CORS_ORIGINS=https://luffa-fabric-interactive-demo.vercel.app,http://localhost:5173,http://127.0.0.1:5173
+```
+
+Railway provides `PORT`; the server uses `PORT` first, then `LAEL_PORT`, then `3000`.
+
+### Health Check
+
+```bash
+curl https://your-railway-core-api.up.railway.app/health
+```
+
+Expected response:
+
+```json
+{
+  "ok": true,
+  "service": "luffa-fabric-core-api"
+}
+```
+
+### CORS
+
+Browser callers must be explicitly allowed through `LAEL_CORS_ORIGINS`.
+
+For production Vercel:
+
+```text
+https://luffa-fabric-interactive-demo.vercel.app
+```
+
+For local Vite:
+
+```text
+http://localhost:5173,http://127.0.0.1:5173
+```
+
+### Phase 2 Flow
+
+The Vercel demo should call these existing routes:
+
+```text
+POST /v2/wallet/connect
+POST /v2/wallet/verify
+POST /v1/agents/register
+POST /v1/policies
+POST /v1/agent/invoke
+POST /v2/settlement/transfer
+GET  /v1/executions/:executionId
+POST /v1/executions/:executionId/feedback
+GET  /v1/agents/:agentId/reputation
+```
+
+Use `did:pkh:eip155:84532:<wallet_address>` as the Base Sepolia owner reference for browser wallet demos. Use `LUFFA_POINTS` and `luffa-points` for safe mock settlement. Do not require real money movement, user private keys, seed phrases, or mnemonics.
+
+### Phase 3 Roadmap
+
+Deploy the VARR sidecar separately and add VARR Mode to the frontend. Only VARR-generated evidence should be labeled `ExecutionReceipt`. Phase 3 should create VARR resources, run the trusted execution loop, read `ExecutionReceipt`, submit feedback, emit `LearningSignal`, and optionally anchor a receipt hash to Base Sepolia using EAS.
+
 ## License
 
 MIT.
